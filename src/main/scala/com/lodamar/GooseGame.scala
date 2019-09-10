@@ -24,10 +24,15 @@ object GooseGame extends App {
 
   def gameLoop(state: State, gameBoard: GameBoard): ZIO[Console with Random, Nothing, Unit] =
     for {
-      commandOrError <- (getStrLn.mapError(IOError) >>= parse(state)).either
-      newState       = updateState(state, commandOrError, gameBoard)
-      outputs        = newState.outputs.reverse.map(_.stringOutput)
-      _              <- putStrLn(outputs.mkString)
-      _              <- gameLoop(newState.clearOutputs, gameBoard)
+      newState <- processCommand(state, gameBoard)
+      outputs  = newState.outputs.reverse.map(_.stringOutput)
+      _        <- putStrLn(outputs.mkString)
+      _        <- gameLoop(newState.clearOutputs, gameBoard)
     } yield ()
+
+  def processCommand(state: State, gameBoard: GameBoard): ZIO[Random with Console, Nothing, State] =
+    (for {
+      command  <- getStrLn.mapError(IOError) >>= parse(state)
+      newState <- ZIO.fromEither(handleCommand(state, command, gameBoard))
+    } yield newState).fold(state.addOutput(_), identity)
 }

@@ -5,14 +5,11 @@ import com.lodamar.model._
 
 object GameLogic {
 
-  def updateState(currentState: State, commandOrError: Either[Error, Command], gameBoard: GameBoard): State =
-    commandOrError.fold(currentState.addOutput, handleCommand(currentState, _, gameBoard))
-
-  def handleCommand(currentState: State, command: Command, gameBoard: GameBoard): State = command match {
+  def handleCommand(currentState: State, command: Command, gameBoard: GameBoard): Either[AddError, State] = command match {
     case AddPlayer(newPlayer) if currentState.players.exists(_.name == newPlayer) =>
-      currentState.addOutput(AlreadyExistingPlayer(newPlayer))
-    case AddPlayer(newPlayer)     => addPlayer(newPlayer, currentState)
-    case MovePlayer(player, roll) => movePlayer(player, roll, currentState, gameBoard)
+      Left(AlreadyExistingPlayer(newPlayer))
+    case AddPlayer(newPlayer)     => Right(addPlayer(newPlayer, currentState))
+    case MovePlayer(player, roll) => Right(movePlayer(player, roll, currentState, gameBoard))
   }
 
   def addPlayer(newPlayer: String, state: State): State = {
@@ -34,6 +31,7 @@ object GameLogic {
     additionalRules(moved, gameBoard, movedState, sumOfDice)
   }
 
+  @scala.annotation.tailrec
   private def additionalRules(player: Player, gameBoard: GameBoard, stateAfterMove: State, sumOfDice: Int): State =
     boxType(player.position, gameBoard) match {
       case Victory => stateAfterMove.copy(players = Set.empty).addOutput(PlayerVictory(player))
