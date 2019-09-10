@@ -41,9 +41,11 @@ final case class PlayerVictory(player: Player) extends Output {
   override def stringOutput: String = s" ${player.name} Wins!!"
 }
 
-sealed trait Error extends Output
+sealed trait Error     extends Output
+sealed trait MoveError extends Error
+sealed trait AddError  extends Error
 
-final case class InvalidDiceRoll(roll: DiceRoll) extends Error {
+final case class InvalidDiceRoll(roll: DiceRoll) extends MoveError {
   override def stringOutput: String = s"Invalid dice roll ${roll.first}, ${roll.second}"
 }
 
@@ -55,26 +57,26 @@ final case class IOError(e: IOException) extends Error {
   override def stringOutput: String = s"IOException received, cause: ${e.getCause}"
 }
 
-final case class PlayerNotFound(name: String) extends Error {
+final case class PlayerNotFound(name: String) extends MoveError {
   override def stringOutput: String = s"player with name $name not found"
 }
 
-final case class AlreadyExistingPlayer(existing: String) extends Error {
+final case class AlreadyExistingPlayer(existing: String) extends AddError {
   override def stringOutput: String = s"$existing: already existing player"
 }
 
-final case class InvalidPlayerName(name: String) extends Error {
+final case class InvalidPlayerName(name: String) extends AddError {
   override def stringOutput: String = s"Name $name is invalid"
 }
 
-final case class EmptyPlayerName(name: String) extends Error {
-  override def stringOutput: String = s"Name $name is blank"
+case object EmptyPlayerName extends AddError {
+  override def stringOutput: String = s"Name cannot be blank"
 }
 
-final case class NotParsableDiceRoll(roll: String) extends Error {
+final case class NotParsableDiceRoll(roll: String) extends MoveError {
   override def stringOutput: String = s"Not parsable dice roll: $roll"
 }
 
-final case class UnknownCommandReceived(command: String) extends Error {
+final case class UnknownCommandReceived(command: String) extends MoveError {
   override def stringOutput: String = s"Unknown command: $command"
 }

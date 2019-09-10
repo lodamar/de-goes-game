@@ -12,6 +12,10 @@ final case class State(players: Set[Player], outputs: List[Output]) {
   def clearOutputs: State                 = copy(outputs = List.empty)
 }
 
+object State {
+  lazy val empty = State(Set.empty, List.empty)
+}
+
 sealed trait Command
 final case class AddPlayer(name: String)                        extends Command
 final case class MovePlayer(player: Player, diceRoll: DiceRoll) extends Command

@@ -1,26 +1,21 @@
 package com.lodamar
 
-import scalaz.zio.{Chunk, ZIO}
-import scalaz.zio.random.Random
+import com.lodamar.service.Random
+import com.lodamar.service.Random.Service
+import scalaz.zio.{ Ref, UIO }
 
 object services {
 
-  class RandomTest extends Random.Service[Any] {
-    override val nextBoolean: ZIO[Any, Nothing, Boolean] = _
+  case class RollDiceState(toRoll: List[Int], rolled: List[Int]) {
+    def roll: RollDiceState = copy(toRoll.tail, toRoll.head :: rolled)
+  }
 
-    override def nextBytes(length: Int): ZIO[Any, Nothing, Chunk[Byte]] = ???
+  class RandomTest(ref: Ref[RollDiceState]) extends Random {
+    override val random: Service[Any] = _ => ref.update(_.roll).map(_.rolled.head)
+  }
 
-    override val nextDouble: ZIO[Any, Nothing, Double] = _
-    override val nextFloat: ZIO[Any, Nothing, Float] = _
-    override val nextGaussian: ZIO[Any, Nothing, Double] = _
-
-    override def nextInt(n: Int): ZIO[Any, Nothing, Int] = ???
-
-    override val nextInt: ZIO[Any, Nothing, Int] = _
-    override val nextLong: ZIO[Any, Nothing, Long] = _
-    override val nextPrintableChar: ZIO[Any, Nothing, Char] = _
-
-    override def nextString(length: Int): ZIO[Any, Nothing, String] = ???
+  object UnusedRandom extends Random {
+    override val random: Service[Any] = _ => UIO(0)
   }
 
 }

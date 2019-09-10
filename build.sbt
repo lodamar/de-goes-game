@@ -1,4 +1,4 @@
-name := "zio-goose-game"
+name := "de-goes-game"
 
 version := "0.1"
 
