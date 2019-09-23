@@ -5,6 +5,7 @@ import com.lodamar.GameLogic._
 import com.lodamar.config.{ AppConfig, GameBoard }
 import com.lodamar.model.{ Error, IOError, InvalidConfig, State }
 import com.lodamar.service.Random
+import pureconfig.loadConfig
 import scalaz.zio.console.{ getStrLn, putStrLn, Console }
 import scalaz.zio.{ App, UIO, ZIO }
 //Intellij warns this import as unused but it's needed for implicits
@@ -16,7 +17,7 @@ object GooseGame extends App {
 
   def gooseGame: ZIO[Console with Random, Error, Unit] =
     for {
-      config        <- ZIO.fromEither(pureconfig.loadConfig[AppConfig]).mapError(InvalidConfig)
+      config        <- ZIO.fromEither(loadConfig[AppConfig]).mapError(InvalidConfig)
       _             <- putStrLn("Welcome to Goose Game!")
       startingState = State(Set.empty, List.empty)
       _             <- gameLoop(startingState, config.gameBoard)
@@ -25,7 +26,7 @@ object GooseGame extends App {
   def gameLoop(state: State, gameBoard: GameBoard): ZIO[Console with Random, Nothing, Unit] =
     for {
       newState <- processCommand(state, gameBoard)
-      outputs  = newState.outputs.reverse.map(_.stringOutput)
+      outputs  = newState.outputs.map(_.stringOutput)
       _        <- putStrLn(outputs.mkString)
       _        <- gameLoop(newState.clearOutputs, gameBoard)
     } yield ()
@@ -34,5 +35,5 @@ object GooseGame extends App {
     (for {
       command  <- getStrLn.mapError(IOError) >>= parse(state)
       newState <- ZIO.fromEither(handleCommand(state, command, gameBoard))
-    } yield newState).fold(state.addOutput(_), identity)
+    } yield newState).catchAll(e => UIO(state.addOutput(e)))
 }

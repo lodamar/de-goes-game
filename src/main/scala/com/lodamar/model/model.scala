@@ -8,7 +8,7 @@ final case class DiceRoll(first: Int, second: Int)
 final case class State(players: Set[Player], outputs: List[Output]) {
   def addPlayer(name: String): State      = copy(players = players + Player(name, 0))
   def updatePlayer(player: Player): State = copy(players = players.filterNot(_.name == player.name) + player)
-  def addOutput(output: Output): State    = copy(outputs = output :: outputs)
+  def addOutput(output: Output): State    = copy(outputs = outputs :+ output)
   def clearOutputs: State                 = copy(outputs = List.empty)
 }
 

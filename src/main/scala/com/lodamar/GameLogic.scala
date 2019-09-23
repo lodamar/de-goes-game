@@ -5,27 +5,30 @@ import com.lodamar.model._
 
 object GameLogic {
 
-  def handleCommand(currentState: State, command: Command, gameBoard: GameBoard): Either[AddError, State] = command match {
-    case AddPlayer(newPlayer) if currentState.players.exists(_.name == newPlayer) =>
-      Left(AlreadyExistingPlayer(newPlayer))
-    case AddPlayer(newPlayer)     => Right(addPlayer(newPlayer, currentState))
-    case MovePlayer(player, roll) => Right(movePlayer(player, roll, currentState, gameBoard))
-  }
+  def handleCommand(currentState: State, command: Command, gameBoard: GameBoard): Either[AddError, State] =
+    command match {
+      case AddPlayer(newPlayer) if currentState.players.exists(_.name == newPlayer) =>
+        Left(AlreadyExistingPlayer(newPlayer))
+      case AddPlayer(newPlayer)     => Right(addPlayer(newPlayer, currentState))
+      case MovePlayer(player, roll) => Right(movePlayer(player, roll, currentState, gameBoard))
+    }
 
-  def addPlayer(newPlayer: String, state: State): State = {
+  private def addPlayer(newPlayer: String, state: State): State = {
     val updatedState = state.addPlayer(newPlayer)
     updatedState.addOutput(AddedPlayer(updatedState.players))
   }
 
-  def movePlayer(player: Player, roll: DiceRoll, currentState: State, gameBoard: GameBoard): State = {
-    val startPos  = player.position
+  private def movePlayer(player: Player, roll: DiceRoll, currentState: State, gameBoard: GameBoard): State = {
     val sumOfDice = roll.first + roll.second
     val moved     = player.move(_ + sumOfDice)
 
     val movedState = currentState
       .updatePlayer(moved)
       .addOutput(
-        MovedPlayer(moved, roll, nameOf(startPos, gameBoard), boxType(moved.position, gameBoard).name(moved.position))
+        MovedPlayer(moved,
+                    roll,
+                    nameOf(player.position, gameBoard),
+                    boxType(moved.position, gameBoard).name(moved.position))
       )
 
     additionalRules(moved, gameBoard, movedState, sumOfDice)
@@ -53,18 +56,18 @@ object GameLogic {
       case Normal =>
         (stateAfterMove.players - player)
           .find(_.position == player.position)
-          .fold(stateAfterMove)(
-            pr => {
-              val starting = player.position - sumOfDice
-              stateAfterMove
-                .updatePlayer(pr.move(starting))
-                .addOutput(
-                  PlayerPranked(pr, nameOf(player.position, gameBoard), nameOf(starting, gameBoard))
-                )
-            }
-          )
+          .fold(stateAfterMove)(handlePrank(player, gameBoard, stateAfterMove, sumOfDice, _))
       case _ => stateAfterMove
     }
+
+  private def handlePrank(player: Player, gameBoard: GameBoard, stateAfterMove: State, sumOfDice: Int, pr: Player) = {
+    val starting = player.position - sumOfDice
+    stateAfterMove
+      .updatePlayer(pr.move(starting))
+      .addOutput(
+        PlayerPranked(pr, nameOf(player.position, gameBoard), nameOf(starting, gameBoard))
+      )
+  }
 
   private def boxType(pos: Int, gameBoard: GameBoard): Box =
     if (pos == gameBoard.victory) Victory
