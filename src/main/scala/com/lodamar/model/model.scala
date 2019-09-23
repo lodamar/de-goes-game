@@ -20,10 +20,6 @@ sealed trait Command
 final case class AddPlayer(name: String)                        extends Command
 final case class MovePlayer(player: Player, diceRoll: DiceRoll) extends Command
 
-sealed trait CommandType
-case object Move extends CommandType
-case object Add  extends CommandType
-
 sealed trait Box {
   def name: Int => String = _.toString
 }
