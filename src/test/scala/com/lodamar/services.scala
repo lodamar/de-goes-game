@@ -2,7 +2,7 @@ package com.lodamar
 
 import com.lodamar.service.Random
 import com.lodamar.service.Random.Service
-import scalaz.zio.{ Ref, UIO }
+import zio.{ Ref, UIO }
 
 object services {
 

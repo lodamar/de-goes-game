@@ -1,8 +1,8 @@
 package com.lodamar.testutil
 
-import org.scalatest.{ Assertion, TestSuite }
-import scalaz.zio.internal.PlatformLive
-import scalaz.zio.{ DefaultRuntime, Runtime, ZIO }
+import org.scalatest.{Assertion, TestSuite}
+import zio.{DefaultRuntime, Runtime, ZIO}
+import zio.internal.PlatformLive
 
 object TestUtil extends TestSuite {
 

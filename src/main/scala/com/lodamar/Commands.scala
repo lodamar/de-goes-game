@@ -3,9 +3,9 @@ package com.lodamar
 import com.lodamar.model._
 import com.lodamar.service.Random
 import com.lodamar.service.Random._
-import scalaz.zio.{ UIO, ZIO }
+import zio.{UIO, ZIO}
 
-import scala.util.{ Success, Try }
+import scala.util.{Success, Try}
 
 object Commands {
   private case class SplitMove(name: String, diceRoll: Option[String])

@@ -2,13 +2,14 @@ package com.lodamar
 
 import com.lodamar.Commands._
 import com.lodamar.GameLogic._
-import com.lodamar.config.{ AppConfig, GameBoard }
+import com.lodamar.config.{AppConfig, GameBoard}
 import com.lodamar.model.Output.output
-import com.lodamar.model.{ Error, IOError, InvalidConfig, Output, State }
+import com.lodamar.model.{Error, IOError, InvalidConfig, Output, State}
 import com.lodamar.service.Random
-import pureconfig.loadConfig
-import scalaz.zio.console.{ getStrLn, putStrLn, Console }
-import scalaz.zio.{ App, UIO, ZIO }
+import pureconfig.ConfigSource.default
+import pureconfig.{ConfigSource, loadConfig}
+import zio.console.{Console, getStrLn, putStrLn}
+import zio.{App, UIO, ZIO}
 //Intellij warns this import as unused but it's needed for implicits
 import pureconfig.generic.auto._
 
@@ -18,7 +19,7 @@ object GooseGame extends App {
 
   def gooseGame: ZIO[Console with Random, Error, Unit] =
     for {
-      config        <- ZIO.fromEither(loadConfig[AppConfig]).mapError(InvalidConfig)
+      config        <- ZIO.fromEither(default.load[AppConfig]).mapError(InvalidConfig)
       _             <- putStrLn("Welcome to Goose Game!")
       startingState = State(Set.empty, List.empty)
       _             <- gameLoop(startingState, config.gameBoard)

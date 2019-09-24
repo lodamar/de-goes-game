@@ -1,8 +1,8 @@
 package com.lodamar.service
 
-import scalaz.zio.ZIO
+import zio.ZIO
 
-import scala.util.{ Random => SRandom }
+import scala.util.{Random => SRandom}
 
 trait Random {
   val random: Random.Service[Any]

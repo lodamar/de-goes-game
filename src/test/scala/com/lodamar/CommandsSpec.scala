@@ -5,7 +5,7 @@ import com.lodamar.model._
 import com.lodamar.services._
 import com.lodamar.testutil.TestUtil._
 import org.scalatest.{ FlatSpecLike, Matchers }
-import scalaz.zio.Ref
+import zio.Ref
 
 class CommandsSpec extends FlatSpecLike with Matchers {
 
