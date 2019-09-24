@@ -18,8 +18,6 @@ object Random {
     override val random: Service[Any] = (n: Int) => ZIO.effectTotal(SRandom.nextInt(n) + 1)
   }
 
-  object Live extends Live
-
   def nextIntInclusive(n: Int): ZIO[Random, Nothing, Int] = ZIO.accessM(_.random.nextIntInclusive(n))
 
 }
