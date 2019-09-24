@@ -20,19 +20,10 @@ sealed trait Command
 final case class AddPlayer(name: String)                        extends Command
 final case class MovePlayer(player: Player, diceRoll: DiceRoll) extends Command
 
-sealed trait Box {
-  def name: Int => String = _.toString
-}
-
-case object Victory extends Box
-case object Bounce  extends Box
-case object Normal  extends Box
-case object Start extends Box {
-  override def name: Int => String = _ => "Start"
-}
-case object Goose extends Box {
-  override def name: Int => String = pos => s"$pos, The Goose"
-}
-final case class Bridge(to: Int) extends Box {
-  override def name: Int => String = _ => "The Bridge"
-}
+sealed trait Box
+case object Victory              extends Box
+case object Bounce               extends Box
+case object Normal               extends Box
+case object Start                extends Box
+case object Goose                extends Box
+final case class Bridge(to: Int) extends Box

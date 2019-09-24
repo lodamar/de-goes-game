@@ -31,7 +31,11 @@ class GameLogicSpec extends FlatSpecLike with Matchers {
     res shouldBe Right(
       initialState
         .copy(players = Set(updatedPlayer))
-        .copy(outputs = List(MovedPlayer(updatedPlayer, diceRoll, Start.name(0), "5")))
+        .copy(
+          outputs = List(
+            MovedPlayer(updatedPlayer, diceRoll, PositionBox(0, Start), PositionBox(updatedPlayer.position, Normal))
+          )
+        )
     )
   }
 
@@ -43,7 +47,12 @@ class GameLogicSpec extends FlatSpecLike with Matchers {
     res shouldBe Right(
       initialState
         .copy(players = Set.empty)
-        .copy(outputs = List(MovedPlayer(updatedPlayer, diceRoll, Start.name(0), "10"), PlayerVictory(updatedPlayer)))
+        .copy(
+          outputs = List(
+            MovedPlayer(updatedPlayer, diceRoll, PositionBox(0, Start), PositionBox(updatedPlayer.position, Victory)),
+            PlayerVictory(updatedPlayer)
+          )
+        )
     )
   }
 
@@ -56,8 +65,10 @@ class GameLogicSpec extends FlatSpecLike with Matchers {
       initialState
         .copy(players = Set(updatedPlayer))
         .copy(
-          outputs = List(MovedPlayer(updatedPlayer.copy(position = 12), diceRoll, Start.name(0), "12"),
-                         PlayerBounced(updatedPlayer, 8))
+          outputs = List(
+            MovedPlayer(updatedPlayer.copy(position = 12), diceRoll, PositionBox(0, Start), PositionBox(12, Bounce)),
+            PlayerBounced(updatedPlayer, 8)
+          )
         )
     )
   }
@@ -71,9 +82,13 @@ class GameLogicSpec extends FlatSpecLike with Matchers {
       initialState
         .copy(players = Set(updatedPlayer))
         .copy(
-          outputs =
-            List(MovedPlayer(updatedPlayer.copy(position = 6), diceRoll, Start.toString, model.Bridge(6).name(0)),
-                 PlayerJumpedFromBridge(updatedPlayer, 8))
+          outputs = List(
+            MovedPlayer(updatedPlayer.copy(position = 6),
+                        diceRoll,
+                        PositionBox(0, Start),
+                        PositionBox(6, model.Bridge(8))),
+            PlayerJumpedFromBridge(updatedPlayer, 8)
+          )
         )
     )
   }
@@ -88,9 +103,9 @@ class GameLogicSpec extends FlatSpecLike with Matchers {
         .copy(players = Set(updatedPlayer))
         .copy(
           outputs = List(
-            MovedPlayer(updatedPlayer.copy(position = 2), diceRoll, Start.toString, model.Goose.name(2)),
-            PlayerMovedAgain(updatedPlayer.copy(position = 4), model.Goose.name(4)),
-            PlayerMovedAgain(updatedPlayer.copy(position = 6), model.Bridge(6).name(0)),
+            MovedPlayer(updatedPlayer.copy(position = 2), diceRoll, PositionBox(0, Start), PositionBox(2, model.Goose)),
+            PlayerMovedAgain(updatedPlayer.copy(position = 4), PositionBox(4, model.Goose)),
+            PlayerMovedAgain(updatedPlayer.copy(position = 6), PositionBox(6, model.Bridge(8))),
             PlayerJumpedFromBridge(updatedPlayer, 8)
           )
         )
@@ -112,9 +127,9 @@ class GameLogicSpec extends FlatSpecLike with Matchers {
         .copy(players = Set(secondUpdatedPlayer, player))
         .copy(
           outputs = List(
-            MovedPlayer(updatedPlayer, diceRoll, Start.name(0), "5"),
-            MovedPlayer(secondUpdatedPlayer, diceRoll, Start.name(0), "5"),
-            PlayerPranked(updatedPlayer, "5", Start.name(0))
+            MovedPlayer(updatedPlayer, diceRoll, PositionBox(0, Start), PositionBox(5, Normal)),
+            MovedPlayer(secondUpdatedPlayer, diceRoll, PositionBox(0, Start), PositionBox(5, Normal)),
+            PlayerPranked(updatedPlayer, PositionBox(5, Normal), PositionBox(0, Start))
           )
         )
     )

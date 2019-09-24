@@ -27,8 +27,8 @@ object GameLogic {
       .addOutput(
         MovedPlayer(moved,
                     roll,
-                    nameOf(player.position, gameBoard),
-                    boxType(moved.position, gameBoard).name(moved.position))
+                    PositionBox(player.position, boxType(player.position, gameBoard)),
+                    PositionBox(moved.position, boxType(moved.position, gameBoard)))
       )
 
     additionalRules(moved, gameBoard, movedState, sumOfDice)
@@ -51,7 +51,9 @@ object GameLogic {
         val p = player.move(_ + sumOfDice)
         additionalRules(p,
                         gameBoard,
-                        stateAfterMove.updatePlayer(p).addOutput(PlayerMovedAgain(p, nameOf(p.position, gameBoard))),
+                        stateAfterMove
+                          .updatePlayer(p)
+                          .addOutput(PlayerMovedAgain(p, PositionBox(p.position, boxType(p.position, gameBoard)))),
                         sumOfDice)
       case Normal =>
         (stateAfterMove.players - player)
@@ -65,7 +67,9 @@ object GameLogic {
     stateAfterMove
       .updatePlayer(pr.move(starting))
       .addOutput(
-        PlayerPranked(pr, nameOf(player.position, gameBoard), nameOf(starting, gameBoard))
+        PlayerPranked(pr,
+                      PositionBox(player.position, boxType(player.position, gameBoard)),
+                      PositionBox(starting, boxType(starting, gameBoard)))
       )
   }
 
@@ -76,7 +80,5 @@ object GameLogic {
     else if (pos == gameBoard.bridge.from) Bridge(gameBoard.bridge.to)
     else if (gameBoard.goose.contains(pos)) Goose
     else Normal
-
-  private def nameOf(pos: Int, gameBoard: GameBoard): String = boxType(pos, gameBoard).name(pos)
 
 }
